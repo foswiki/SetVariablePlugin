@@ -1,0 +1,122 @@
+---+!! <nop>%TOPIC%
+%SHORTDESCRIPTION%
+<!--
+One line description, required for extensions repository catalog.
+   * Set SHORTDESCRIPTION = Flexible handling of topic variables
+-->
+
+%TOC%
+
+The main purpose of this plugin is to allow to set topic variables when saving a topic.
+Url parameters posted to =save= will be parsed and stored into the current topic.
+
+Parameters must have the form:
+<verbatim class="html">
+http://....?[Local|Set|Unset|Default]+<key>=<value>
+</verbatim>
+
+Which means:
+   * =Local+&lt;key>=&lt;value>= will create a local topic variable called =key= with value =value
+   * =Set+&lt;key>=&lt;value>= will create a normal topic variable called =key= with value =value (note if stored in a user topic these take
+     effect on all of the site for this user; see the Foswiki documentation for a more in depth explanation)
+   * =Unset+&lt;key>=&lt;value>= will remove a topic variable called =key= from the topic
+   * =Default+&lt;key>=&lt;value>= defines the default values for a variable =key=; if =key= is set to this value, it will actually be
+     remove from the topic as it is being set to a _default_ value
+
+In addition to setting topic variables via url parameters of a =save= action,
+this plugin provides means to read and write topic variables in
+!WikiApplications. Among other use cases these can be used to create
+appropriate html forms for topic variables as far as the function is not
+provided by standard TML part of the Foswiki core.
+
+When SETVAR and UNSERVAR are parsed during the discourse of creating the current page they
+don't set the topic variable immediately. Instead they create a _definition rule_. All definition rules
+are collected and applied to the topic at the end of the parsing process. That way multiple SETVAR
+and UNSERVAR - that potentially contradict each other - stack up. The last rule on the stack
+wins and decides wether a variable is set or deleted. This allows to create more extensive rule sets.
+
+---++ Syntax Rules
+---+++ SETVAR
+<verbatim class="tml">%SETVAR{
+  "<key>" 
+  value="<value>" 
+  field="<fieldname>" 
+  regex="<pattern>"
+}%</verbatim>
+
+This sets topic variable =key= to value =value= if the formfield =fieldname= of the current topic
+matches =pattern=.
+This allows to set topic variables based on the value of a formfield value. For example, that's useful
+to create access control settings automatically.
+
+---+++ UNSETVAR
+<verbatim class="tml">%UNSETVAR{
+  "<key>" 
+  field="<fieldname>" 
+  regex="<pattern>"
+}%</verbatim>
+
+This unsets topic variable =key= when formfield formfield =fieldname= of the current topic
+matches =pattern=
+
+---+++ GETVAR
+<verbatim class="tml">%GETVAR{
+  "<key|pattern>" 
+  web="<web>" 
+  topic="<topic>" 
+  format="<format>" 
+  header="<header>"
+  footer="<footer>"
+  separator="<separator>"
+  type="PREFERENCE|FIELD|TOPICINFO|..."
+  sort="on|off"
+  default="<default>"
+  scope="topic|web|user|session"
+}%</verbatim>
+
+This displays a variable =key= as stored in topic =web.topic= and formats it using
+the given =format=. It's type can be any of the known Foswiki meta data specifies like
+=PREFERENCE=, =FIELD=, =TOPICINFO= etc. When no definition of =key= was found the 
+=default= value is returned. Instead of extracting a variable from =web.topic=
+it can also be extracted from a specific scope. 
+
+Normally all scopes are layered above each other and only the value defined in
+the scope with highest precedence is returned.  So when ever a variable is set
+in a topic, it will potentially override its definition on web level or user
+level. You may use the =scope= parameter to bypass this logic and extract a
+specific value from the given scope specifier.
+
+Multiple variables can be returned by one call if you use a =pattern= instead of 
+a =key= holding a regular expression. GETVAR will return all variable values of
+the given =type= where the =pattern= matches on the variable name. The list of 
+variables will be displayed using =format= preceded by =header= and appended by =footer=.
+The =header= and =footer= will be omitted when no matching variable was found.
+
+The =format= string may contain the standard escape parameters 
+   * =$percnt=, 
+   * =$dollar=, 
+   * =$nop= and
+   * =$n= as well as
+   * =$value= - the value of the current variable
+   * =$name= - the name of the current variable
+   * =$title= - the title and the
+   * =$type= - which is =Set=, =Local, =Web or =Session= depending on the type
+               and scope of the variable
+
+---+++ DEBUGRULES
+Display a table of all definition rules as far as collected by SETVAR and UNSERVAR.
+
+---++ Installation Instructions
+%$INSTALL_INSTRUCTIONS%
+
+---++ Plugin Info
+|  Plugin Author: | Foswiki:Main.MichaelDaum |
+|  Copyright: | &copy; 2007-2009 Michael Daum http://michaeldaumconsulting.com |
+|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
+|  Plugin Version: | 1.00 |
+|  Change History: | &nbsp; |
+|  23 Jun 2009: | initial release |
+|  Dependencies: | %$DEPENDENCIES% |
+|  Plugin Home: | Foswiki:Extensions/%TOPIC% |
+|  Feedback: | Foswiki:Extensions/%TOPIC%Dev |
+
