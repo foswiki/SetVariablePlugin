@@ -100,7 +100,7 @@ The =format= string may contain the standard escape parameters
    * =$value= - the value of the current variable
    * =$name= - the name of the current variable
    * =$title= - the title and the
-   * =$type= - which is =Set=, =Local, =Web or =Session= depending on the type
+   * =$type= - which is =Set=, =Local=, =Web= or =Session= depending on the type
                and scope of the variable
 
 ---+++ DEBUGRULES
