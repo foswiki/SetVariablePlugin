@@ -66,7 +66,7 @@ sub applyRules {
   my @fields = $meta->find('FIELD');
 
   # itterate over all rules in the given order 
-  foreach my $record (@{$this->{rules}}) {
+  foreach my $record (sort {$b->{prio} <=> $a->{prio}} @{$this->{rules}}) {
 
     # check conditions
     if ($record->{field}) {
@@ -92,7 +92,7 @@ sub applyRules {
     my $type = $record->{type} || 'Local';
     my $value = expandVariables($record->{value});
     if (defined $value) {
-      $value = entityEncode(Foswiki::Func::expandCommonVariables($value, $topic, $web));
+      $value = Foswiki::Func::expandCommonVariables($value, $topic, $web);
     }
 
     if ($record->{action} eq ACTION_SET && defined($value)) {
@@ -107,8 +107,6 @@ sub applyRules {
   return $meta;
 }
 
-#my $setRegex = '((?:^|[\n\r])\t|   +\*\s+)#?(?:Set\s+#?)('.$record->{var}.')\s+=\s+(.*?)($|[\n\r])';
-
 ###############################################################################
 sub handleSetVar {
   my ($this, $session, $params, $topic, $web) = @_;
@@ -121,6 +119,7 @@ sub handleSetVar {
     type => ($params->{type} || 'Local'),
     field => $params->{field},
     regex => ($params->{match} || $params->{matches} || $params->{regex} || '.*'),
+    prio => 1,
   );
 
   return '';
@@ -166,7 +165,7 @@ sub handleGetVar {
       return '';
     }
     @metas = $meta->find($theType);
-    writeDebug("found ".scalar(@metas)." metas");
+    #writeDebug("found ".scalar(@metas)." metas");
   } elsif ($theScope eq 'web') {
     my $value = Foswiki::Func::getPreferencesValue($theVar, $theWeb);
     if (defined $value) {
@@ -221,6 +220,7 @@ sub handleUnsetVar {
     var => ($params->{_DEFAULT} || $params->{var}),
     field => $params->{field},
     regex => ($params->{match} || $params->{matches} || $params->{regex} || '.*'),
+    prio => 1,
   );
 
   return '';
@@ -248,18 +248,14 @@ sub handleDebugRules {
 
 ###############################################################################
 sub handleBeforeSave {
-  my $this = $_[0];
-  #my $text = $_[1];
-  my $topic = $_[2];
-  my $web = $_[3];
-  #my $meta = $_[4];
+  my ($this, $text, $topic, $web, $meta) = @_;
 
   return if $this->{_insideBeforeSaveHandler};
   $this->{_insideBeforeSaveHandler} = 1;
   writeDebug("handleBeforeSave($web.$topic)");
 
   # get the rules NOW
-  Foswiki::Func::expandCommonVariables($_[1], $topic, $web);
+  $text = Foswiki::Func::expandCommonVariables($text, $topic, $web);
 
   # create rules from Set+VARNAME, Local+VARNAME, Unset+VARNAME and Default+VARNAME urlparams
   my $request = Foswiki::Func::getCgiQuery();
@@ -270,6 +266,7 @@ sub handleBeforeSave {
     my $name = $2;
     my @values = $request->param($key);
     next unless @values;
+    @values = grep {!/^$/} @values if @values > 1;
     my $value = join(", ", @values);
     writeDebug("key=$key, value=$value");
 
@@ -277,10 +274,11 @@ sub handleBeforeSave {
     if ($type =~ /Local|Set/) {
       my @defaultValues = $request->param("Default+$name");
       if (@defaultValues) {
+        @defaultValues = grep {!/^$/} @defaultValues if @defaultValues > 1;
         my $defaultValue = join(', ', @defaultValues);
         if ($defaultValue eq $value) {
           $type = 'Unset';
-          writeDebug("found set to default/undef ... unsetting ".$name);
+          #writeDebug("found set to default/undef ... unsetting ".$name);
         }
       }
     }
@@ -289,32 +287,22 @@ sub handleBeforeSave {
     if ($type eq 'Unset') {
       $this->addRule(ACTION_UNSET,
         var => $name,
+        prio => 2,
       );
     } else {
       $this->addRule(ACTION_SET,
         var => $name,
         value => $value,
         type => $type,
+        prio => 2,
       );
     }
   }
 
   # execute rules in the given order
-  $this->applyRules($web, $topic, $_[4], $_[1]);
+  $this->applyRules($web, $topic, $meta, $text);
 
   $this->{_insideBeforeSaveHandler} = 0;
-}
-
-###############################################################################
-# private version :(
-sub entityEncode {
-  my ($text, $extra) = @_;
-  $extra ||= '';
-
-  $text =~
-    s/([[\x01-\x09\x0b\x0c\x0e-\x1f"%&'*<=>@[_\|$extra])/'&#'.ord($1).';'/ge;
-
-  return $text;
 }
 
 ###############################################################################

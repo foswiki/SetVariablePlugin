@@ -113,10 +113,12 @@ Display a table of all definition rules as far as collected by SETVAR and UNSERV
 |  Plugin Author: | Foswiki:Main.MichaelDaum |
 |  Copyright: | &copy; 2007-2009 Michael Daum http://michaeldaumconsulting.com |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
-|  Plugin Version: | 1.00 |
+|  Release: | %$RELEASE% |
+|  Version: | %$VERSION% |
 |  Change History: | &nbsp; |
+|  17 Nov 2009: | SETVAR has higher priority than urlparams; fixed use in persistent perl envs |
 |  23 Jun 2009: | initial release |
 |  Dependencies: | %$DEPENDENCIES% |
-|  Plugin Home: | Foswiki:Extensions/%TOPIC% |
-|  Feedback: | Foswiki:Extensions/%TOPIC%Dev |
+|  Home: | Foswiki:Extensions/%TOPIC% |
+|  Support: | Foswiki:Support/%TOPIC% |
 

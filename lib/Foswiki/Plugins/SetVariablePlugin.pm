@@ -22,8 +22,8 @@ use vars qw(
   $core
 );
 
-$VERSION = '$Rev$';
-$RELEASE = '1.00';
+$VERSION = '$Rev: 4287 (2009-06-23) $';
+$RELEASE = '1.01';
 
 $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 $NO_PREFS_IN_TOPIC = 1;
@@ -33,17 +33,13 @@ $NO_PREFS_IN_TOPIC = 1;
 sub initPlugin {
   my( $topic, $web, $user, $installWeb ) = @_;
 
-  # check for Plugins.pm versions
-  if( $Foswiki::Plugins::VERSION < 1.026 ) {
-    Foswiki::Func::writeWarning( "Version mismatch between SetVariablePlugin and Plugins.pm" );
-    return 0;
-  }
-
   Foswiki::Func::registerTagHandler('SETVAR', \&handleSetVar);
   Foswiki::Func::registerTagHandler('GETVAR', \&handleGetVar);
   Foswiki::Func::registerTagHandler('DELVAR', \&handleUnsetVar);
   Foswiki::Func::registerTagHandler('UNSETVAR', \&handleUnsetVar);
   Foswiki::Func::registerTagHandler('DEBUGRULES', \&handleDebugRules);
+
+  undef $core;
 
   return 1;
 }
