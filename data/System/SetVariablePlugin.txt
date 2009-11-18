@@ -103,9 +103,6 @@ The =format= string may contain the standard escape parameters
    * =$type= - which is =Set=, =Local=, =Web= or =Session= depending on the type
                and scope of the variable
 
----+++ DEBUGRULES
-Display a table of all definition rules as far as collected by SETVAR and UNSERVAR.
-
 ---++ Installation Instructions
 %$INSTALL_INSTRUCTIONS%
 

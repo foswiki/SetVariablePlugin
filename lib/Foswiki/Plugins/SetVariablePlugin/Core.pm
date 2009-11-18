@@ -23,11 +23,8 @@ use constant ACTION_SET => 1;
 # constructor
 sub new {
   my $class = shift;
-  my $this = bless({}, $class);
 
-  $this->{rules} = ();
-
-  return $this;
+  return bless({}, $class);
 }
 
 ###############################################################################
@@ -55,6 +52,8 @@ sub addRule {
 ###############################################################################
 sub applyRules {
   my ($this, $web, $topic, $meta, $text) = @_;
+
+  return unless $this->{rules};
 
   $text ||= '';
 

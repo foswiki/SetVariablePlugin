@@ -23,23 +23,24 @@ use vars qw(
 );
 
 $VERSION = '$Rev: 4287 (2009-06-23) $';
-$RELEASE = '1.01';
+$RELEASE = '1.02';
 
 $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 $NO_PREFS_IN_TOPIC = 1;
 
+use constant DEBUG => 0; #toggle me
 
 ###############################################################################
 sub initPlugin {
-  my( $topic, $web, $user, $installWeb ) = @_;
+  my ($topic, $web, $user, $installWeb) = @_;
 
   Foswiki::Func::registerTagHandler('SETVAR', \&handleSetVar);
   Foswiki::Func::registerTagHandler('GETVAR', \&handleGetVar);
   Foswiki::Func::registerTagHandler('DELVAR', \&handleUnsetVar);
   Foswiki::Func::registerTagHandler('UNSETVAR', \&handleUnsetVar);
-  Foswiki::Func::registerTagHandler('DEBUGRULES', \&handleDebugRules);
+  Foswiki::Func::registerTagHandler('DEBUGRULES', \&handleDebugRules) if DEBUG;
 
-  undef $core;
+  $core = undef;
 
   return 1;
 }
@@ -55,9 +56,19 @@ sub getCore {
 }
 
 ###############################################################################
-sub handleSetVar { getCore()->handleSetVar(@_); }
+sub handleSetVar { 
+  getCore()->handleSetVar(@_) if Foswiki::Func::getContext()->{save} || DEBUG;
+  return '' ;
+}
+
+###############################################################################
+sub handleUnsetVar { 
+  getCore()->handleUnsetVar(@_) if Foswiki::Func::getContext()->{save} || DEBUG;
+  return '' ;
+}
+
+###############################################################################
 sub handleGetVar { getCore()->handleGetVar(@_); }
-sub handleUnsetVar { getCore()->handleUnsetVar(@_); }
 sub handleDebugRules { getCore()->handleDebugRules(@_); }
 sub beforeSaveHandler { getCore()->handleBeforeSave(@_); }
 
