@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2009 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2011 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -74,7 +74,7 @@ sub applyRules {
       foreach my $field (@fields) {
         my $name = $field->{name} || '';
         my $value = $field->{value} || '';
-        if ($name eq $record->{field} && $value =~ /$record->{regex}/) {
+        if ($name eq $record->{field} && $value =~ /^($record->{regex})$/) {
           $found = 1;
           last;
         }
@@ -95,10 +95,10 @@ sub applyRules {
     }
 
     if ($record->{action} eq ACTION_SET && defined($value)) {
-      writeDebug("... setting preference $var to $value, type=$type");
+      writeDebug("... setting preference $var to $value, type=$type, prio=$record->{prio}");
       $meta->putKeyed('PREFERENCE', {name=>$var, title => $var, value => $value, type => $type});
     } else { # unset
-      writeDebug("... unsetting preference $var");
+      writeDebug("... unsetting preference $var, prio=$record->{prio}");
       $meta->remove('PREFERENCE', $record->{var});
     }
   }
@@ -149,7 +149,7 @@ sub handleGetVar {
   my @metas;
   my $wikiName = Foswiki::Func::getWikiName();
 
-  writeDebug("handleGetVar - topic=$theWeb.$theTopic, wikiName=$wikiName, scope=$theScope, type=$theType, var=$theVar");
+  #writeDebug("handleGetVar - topic=$theWeb.$theTopic, wikiName=$wikiName, scope=$theScope, type=$theType, var=$theVar");
 
   # get meta
   if ($theScope eq 'user') {
@@ -254,7 +254,10 @@ sub handleBeforeSave {
   writeDebug("handleBeforeSave($web.$topic)");
 
   # get the rules NOW
-  $text = Foswiki::Func::expandCommonVariables($text, $topic, $web);
+  my $template = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE') || 'view';
+  my $tmpl = Foswiki::Func::readTemplate($template);
+  $tmpl =~ s/\%TEXT%/$text/g;
+  $text = Foswiki::Func::expandCommonVariables($tmpl, $topic, $web);
 
   # create rules from Set+VARNAME, Local+VARNAME, Unset+VARNAME and Default+VARNAME urlparams
   my $request = Foswiki::Func::getCgiQuery();

@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2006-2009 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2006-2011 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@ use vars qw(
 );
 
 $VERSION = '$Rev: 4287 (2009-06-23) $';
-$RELEASE = '1.02';
+$RELEASE = '2.00';
 
 $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 $NO_PREFS_IN_TOPIC = 1;
