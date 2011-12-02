@@ -113,6 +113,7 @@ The =format= string may contain the standard escape parameters
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | &nbsp; |
+|  02 Dec 2011: | improving save times, thanks to Foswiki:Main.PaulHarvey |
 |  28 Sep 2011: | implement setting variables via view_templates |
 |  17 Nov 2009: | SETVAR has higher priority than urlparams; fixed use in persistent perl envs |
 |  23 Jun 2009: | initial release |

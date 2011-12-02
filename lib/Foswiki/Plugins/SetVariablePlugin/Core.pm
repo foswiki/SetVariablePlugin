@@ -18,6 +18,7 @@ use strict;
 use constant DEBUG => 0; # toggle me
 use constant ACTION_UNSET => 0;
 use constant ACTION_SET => 1;
+use Foswiki ();
 
 ###############################################################################
 # constructor
@@ -257,6 +258,10 @@ sub handleBeforeSave {
   my $template = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE') || 'view';
   my $tmpl = Foswiki::Func::readTemplate($template);
   $tmpl =~ s/\%TEXT%/$text/g;
+
+  # Disable most macros in the text... we only care about those that probably bring in a [GET,SET,UNSET,DEL]VAR
+  # TODO: can we perform all INCLUDEs and DBCALLs only before disabling everything else?
+  $text =~ s/%((?!(GETVAR|SETVAR|DELVAR|UNSETVAR))$Foswiki::regex{tagNameRegex}({.*?})?)%/%<nop>$1%/gms;
   $text = Foswiki::Func::expandCommonVariables($tmpl, $topic, $web);
 
   # create rules from Set+VARNAME, Local+VARNAME, Unset+VARNAME and Default+VARNAME urlparams
