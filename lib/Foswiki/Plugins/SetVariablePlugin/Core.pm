@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2011 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2012 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@ use strict;
 use constant DEBUG => 0; # toggle me
 use constant ACTION_UNSET => 0;
 use constant ACTION_SET => 1;
-use Foswiki ();
+use Foswiki::Func ();
 
 ###############################################################################
 # constructor
@@ -139,7 +139,7 @@ sub handleGetVar {
   my $theType = $params->{type} || 'PREFERENCE';
   my $theSort = $params->{sort} || 'off';
   my $theDefault = $params->{default} || '';
-  my $theScope = $params->{scope} || 'topic'; # web, user, session
+  my $theScope = $params->{scope} || 'topic'; # global, web, user, session, topic
   
   $theFormat = '$value' unless defined $theFormat;
   $theSep = ', ' unless defined $theSep;
@@ -157,7 +157,21 @@ sub handleGetVar {
     ($theWeb, $theTopic) = Foswiki::Func::normalizeWebTopicName($Foswiki::cfg{UsersWebName}, $wikiName);
     $theScope = 'topic';
   }
-  if ($theScope eq 'topic') {
+  if ($theScope eq 'global') {
+    my ($sitePrefsWeb, $sitePrefsTopic) = Foswiki::Func::normalizeWebTopicName($Foswiki::cfg{UsersWebName}, $Foswiki::cfg{LocalSitePreferences});
+    Foswiki::Func::pushTopicContext($sitePrefsWeb, $sitePrefsTopic);
+    my $value = Foswiki::Func::getPreferencesValue($theVar);
+    if (defined $value) {
+      my $meta = {
+        name=> $theVar,
+        title=> $theVar,
+        value=> $value,
+        type => 'Global',
+      };
+      push @metas, $meta;
+    }
+    Foswiki::Func::popTopicContext();
+  } elsif ($theScope eq 'topic') {
     my ($meta, $text) = Foswiki::Func::readTopic($theWeb, $theTopic);
     
     if (!Foswiki::Func::checkAccessPermission("VIEW", $wikiName, $text, $topic, $web, $meta)) {
@@ -257,11 +271,19 @@ sub handleBeforeSave {
   # get the rules NOW
   my $template = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE') || 'view';
   my $tmpl = Foswiki::Func::readTemplate($template);
-  $tmpl =~ s/\%TEXT%/$text/g;
+  $tmpl = Foswiki::Func::readTemplate('view') unless $tmpl && $template eq 'view';
+
+  if ($tmpl =~ /\%TEXT%/) {
+    $tmpl =~ s/\%TEXT%/$text/g;
+    $text = $tmpl;
+  }
 
   # Disable most macros in the text... we only care about those that probably bring in a [GET,SET,UNSET,DEL]VAR
   # TODO: can we perform all INCLUDEs and DBCALLs only before disabling everything else?
   $text =~ s/%((?!(GETVAR|SETVAR|DELVAR|UNSETVAR))$Foswiki::regex{tagNameRegex}({.*?})?)%/%<nop>$1%/gms;
+
+  #writeDebug("text=$text\n");
+
   $text = Foswiki::Func::expandCommonVariables($tmpl, $topic, $web);
 
   # create rules from Set+VARNAME, Local+VARNAME, Unset+VARNAME and Default+VARNAME urlparams
