@@ -23,7 +23,7 @@ use vars qw(
 );
 
 $VERSION = '$Rev: 4287 (2009-06-23) $';
-$RELEASE = '2.10';
+$RELEASE = '2.20';
 
 $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 $NO_PREFS_IN_TOPIC = 1;

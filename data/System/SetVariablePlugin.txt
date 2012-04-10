@@ -113,6 +113,7 @@ The =format= string may contain the standard escape parameters
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | &nbsp; |
+|  10 Apr 2012: | fixing scope="web"; finxign reading the view template yet again |
 |  27 Feb 2012: | added scope="global"; fixed reading view templates when there is none |
 |  02 Dec 2011: | improving save times, thanks to Foswiki:Main.PaulHarvey |
 |  28 Sep 2011: | implement setting variables via view_templates |
@@ -121,4 +122,3 @@ The =format= string may contain the standard escape parameters
 |  Dependencies: | %$DEPENDENCIES% |
 |  Home: | Foswiki:Extensions/%TOPIC% |
 |  Support: | Foswiki:Support/%TOPIC% |
-

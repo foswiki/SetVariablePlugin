@@ -15,6 +15,7 @@
 package Foswiki::Plugins::SetVariablePlugin::Core;
 
 use strict;
+use warnings;
 use constant DEBUG => 0; # toggle me
 use constant ACTION_UNSET => 0;
 use constant ACTION_SET => 1;
@@ -181,16 +182,19 @@ sub handleGetVar {
     @metas = $meta->find($theType);
     #writeDebug("found ".scalar(@metas)." metas");
   } elsif ($theScope eq 'web') {
-    my $value = Foswiki::Func::getPreferencesValue($theVar, $theWeb);
+    my ($prefsWeb, $prefsTopic) = Foswiki::Func::normalizeWebTopicName($theWeb, $Foswiki::cfg{WebPrefsTopicName});
+    Foswiki::Func::pushTopicContext($prefsWeb, $prefsTopic);
+    my $value = Foswiki::Func::getPreferencesValue($theVar);
     if (defined $value) {
       my $meta = {
         name=> $theVar,
         title=> $theVar,
         value=> $value,
-        type => 'Web',
+        type => 'Global',
       };
       push @metas, $meta;
     }
+    Foswiki::Func::popTopicContext();
   } elsif ($theScope eq 'session') {
     my @keys = Foswiki::Func::getSessionKeys();
     foreach my $key (@keys) {
@@ -269,11 +273,12 @@ sub handleBeforeSave {
   writeDebug("handleBeforeSave($web.$topic)");
 
   # get the rules NOW
-  my $template = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE') || 'view';
-  my $tmpl = Foswiki::Func::readTemplate($template);
-  $tmpl = Foswiki::Func::readTemplate('view') unless $tmpl && $template eq 'view';
+  my $viewTemplate = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE');
+  my $tmpl;
+  $tmpl = Foswiki::Func::readTemplate($viewTemplate) if $viewTemplate;
+  $tmpl = Foswiki::Func::readTemplate('view') unless $tmpl;
 
-  if ($tmpl =~ /\%TEXT%/) {
+  if ($tmpl && $tmpl =~ /\%TEXT%/) {
     $tmpl =~ s/\%TEXT%/$text/g;
     $text = $tmpl;
   }
@@ -284,7 +289,7 @@ sub handleBeforeSave {
 
   #writeDebug("text=$text\n");
 
-  $text = Foswiki::Func::expandCommonVariables($tmpl, $topic, $web);
+  $text = Foswiki::Func::expandCommonVariables($text, $topic, $web);
 
   # create rules from Set+VARNAME, Local+VARNAME, Unset+VARNAME and Default+VARNAME urlparams
   my $request = Foswiki::Func::getCgiQuery();
@@ -307,7 +312,7 @@ sub handleBeforeSave {
         my $defaultValue = join(', ', @defaultValues);
         if ($defaultValue eq $value) {
           $type = 'Unset';
-          #writeDebug("found set to default/undef ... unsetting ".$name);
+          writeDebug("found set to default/undef ... unsetting ".$name);
         }
       }
     }
