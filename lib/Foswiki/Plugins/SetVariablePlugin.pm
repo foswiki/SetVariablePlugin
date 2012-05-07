@@ -16,8 +16,8 @@
 package Foswiki::Plugins::SetVariablePlugin;
 
 use strict;
-use vars qw(
-  $VERSION $RELEASE $SHORTDESCRIPTION
+use vars qw( 
+  $VERSION $RELEASE $SHORTDESCRIPTION 
   $NO_PREFS_IN_TOPIC
   $core
 );
@@ -25,62 +25,49 @@ use vars qw(
 $VERSION = '$Rev: 4287 (2009-06-23) $';
 $RELEASE = '2.20';
 
-$SHORTDESCRIPTION  = 'Flexible handling of topic variables';
+$SHORTDESCRIPTION = 'Flexible handling of topic variables';
 $NO_PREFS_IN_TOPIC = 1;
 
 ###############################################################################
 sub initPlugin {
-    my ( $topic, $web, $user, $installWeb ) = @_;
+  my ($topic, $web, $user, $installWeb) = @_;
 
-    Foswiki::Func::registerTagHandler(
-        'SETVAR',
-        sub {
-            getCore()->handleSetVar(@_) if Foswiki::Func::getContext()->{save};
-            return '<!-- -->';
-        }
-    );
+  Foswiki::Func::registerTagHandler('SETVAR', sub {
+    getCore()->handleSetVar(@_) if Foswiki::Func::getContext()->{save};
+    return '<!-- -->' ;
+  });
 
-    Foswiki::Func::registerTagHandler(
-        'GETVAR',
-        sub {
-            return getCore()->handleGetVar(@_);
-        }
-    );
+  Foswiki::Func::registerTagHandler('GETVAR', sub { 
+    return getCore()->handleGetVar(@_); 
+  });
 
-    Foswiki::Func::registerTagHandler(
-        'DELVAR',
-        sub {
-            getCore()->handleUnsetVar(@_)
-              if Foswiki::Func::getContext()->{save};
-            return '<!-- -->';
-        }
-    );
+  Foswiki::Func::registerTagHandler('DELVAR', sub { 
+    getCore()->handleUnsetVar(@_) if Foswiki::Func::getContext()->{save};
+    return '<!-- -->' ;
+  });
 
-    Foswiki::Func::registerTagHandler(
-        'UNSETVAR',
-        sub {
-            getCore()->handleUnsetVar(@_)
-              if Foswiki::Func::getContext()->{save};
-            return '<!-- -->';
-        }
-    );
+  Foswiki::Func::registerTagHandler('UNSETVAR', sub { 
+    getCore()->handleUnsetVar(@_) if Foswiki::Func::getContext()->{save};
+    return '<!-- -->' ;
+  });
 
-    $core = undef;
+  $core = undef;
 
-    return 1;
+  return 1;
 }
 
 ###############################################################################
 sub getCore {
-    return $core if $core;
+  return $core if $core;
 
-    require Foswiki::Plugins::SetVariablePlugin::Core;
-    $core = new Foswiki::Plugins::SetVariablePlugin::Core;
+  require Foswiki::Plugins::SetVariablePlugin::Core;
+  $core = new Foswiki::Plugins::SetVariablePlugin::Core;
 
-    return $core;
+  return $core;
 }
 
 ###############################################################################
 sub beforeSaveHandler { return getCore()->handleBeforeSave(@_); }
+
 
 1;
