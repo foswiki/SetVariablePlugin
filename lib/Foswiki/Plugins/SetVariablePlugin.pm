@@ -16,17 +16,16 @@
 package Foswiki::Plugins::SetVariablePlugin;
 
 use strict;
-use vars qw( 
-  $VERSION $RELEASE $SHORTDESCRIPTION 
-  $NO_PREFS_IN_TOPIC
-  $core
-);
+use warnings;
 
-$VERSION = '$Rev: 4287 (2009-06-23) $';
-$RELEASE = '2.20';
+use Foswiki::Func ();
+use Foswiki::Plugins ();
 
-$SHORTDESCRIPTION = 'Flexible handling of topic variables';
-$NO_PREFS_IN_TOPIC = 1;
+our $VERSION = '$Rev: 4287 (2009-06-23) $';
+our $RELEASE = '2.21';
+our $SHORTDESCRIPTION = 'Flexible handling of topic variables';
+our $NO_PREFS_IN_TOPIC = 1;
+our $core;
 
 ###############################################################################
 sub initPlugin {
@@ -67,7 +66,10 @@ sub getCore {
 }
 
 ###############################################################################
-sub beforeSaveHandler { return getCore()->handleBeforeSave(@_); }
+sub beforeSaveHandler { 
+  return if $Foswiki::Plugins::VERSION >= 2.3;
+  return getCore()->handleBeforeSave(@_); 
+}
 
 
 1;

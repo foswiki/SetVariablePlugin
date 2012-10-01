@@ -159,9 +159,7 @@ sub handleGetVar {
     $theScope = 'topic';
   }
   if ($theScope eq 'global') {
-    my ($sitePrefsWeb, $sitePrefsTopic) = Foswiki::Func::normalizeWebTopicName($Foswiki::cfg{UsersWebName}, $Foswiki::cfg{LocalSitePreferences});
-    Foswiki::Func::pushTopicContext($sitePrefsWeb, $sitePrefsTopic);
-    my $value = Foswiki::Func::getPreferencesValue($theVar);
+    my $value = getGlobalVar($theVar);
     if (defined $value) {
       my $meta = {
         name=> $theVar,
@@ -171,7 +169,6 @@ sub handleGetVar {
       };
       push @metas, $meta;
     }
-    Foswiki::Func::popTopicContext();
   } elsif ($theScope eq 'topic') {
     my ($meta, $text) = Foswiki::Func::readTopic($theWeb, $theTopic);
     
@@ -182,9 +179,8 @@ sub handleGetVar {
     @metas = $meta->find($theType);
     #writeDebug("found ".scalar(@metas)." metas");
   } elsif ($theScope eq 'web') {
-    my ($prefsWeb, $prefsTopic) = Foswiki::Func::normalizeWebTopicName($theWeb, $Foswiki::cfg{WebPrefsTopicName});
-    Foswiki::Func::pushTopicContext($prefsWeb, $prefsTopic);
-    my $value = Foswiki::Func::getPreferencesValue($theVar);
+    my $value = Foswiki::Func::getPreferencesValue($theVar, $theWeb);
+    $value = getGlobalVar($theVar) unless defined $value;
     if (defined $value) {
       my $meta = {
         name=> $theVar,
@@ -194,7 +190,6 @@ sub handleGetVar {
       };
       push @metas, $meta;
     }
-    Foswiki::Func::popTopicContext();
   } elsif ($theScope eq 'session') {
     my @keys = Foswiki::Func::getSessionKeys();
     foreach my $key (@keys) {
@@ -226,6 +221,17 @@ sub handleGetVar {
   return $theDefault unless @result;
 
   return $theHeader.join($theSep, @result).$theFooter;
+}
+
+###############################################################################
+sub getGlobalVar {
+  my $theVar = shift;
+
+  my ($sitePrefsWeb, $sitePrefsTopic) = Foswiki::Func::normalizeWebTopicName($Foswiki::cfg{UsersWebName}, $Foswiki::cfg{LocalSitePreferences});
+  Foswiki::Func::pushTopicContext($sitePrefsWeb, $sitePrefsTopic);
+  my $value = Foswiki::Func::getPreferencesValue($theVar);
+  Foswiki::Func::popTopicContext();
+  return $value;
 }
 
 ###############################################################################
