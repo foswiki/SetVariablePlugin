@@ -286,8 +286,10 @@ sub handleBeforeSave {
 
   if ($tmpl && $tmpl =~ /\%TEXT%/) {
     $tmpl =~ s/\%TEXT%/$text/g;
-    $text = $tmpl;
   }
+  # Item12196: expand only view template if $text isn't included, similar to
+  # how Foswiki::UI::View renders pages
+  $text = $tmpl;
 
   # Disable most macros in the text... we only care about those that probably bring in a [GET,SET,UNSET,DEL]VAR
   # TODO: can we perform all INCLUDEs and DBCALLs only before disabling everything else?
