@@ -21,8 +21,9 @@ use warnings;
 use Foswiki::Func ();
 use Foswiki::Plugins ();
 
-our $VERSION = '$Rev: 4287 (2009-06-23) $';
-our $RELEASE = '2.21';
+use version; our $VERSION = version->declare("v2.30");
+our $RELEASE = "2.30";
+
 our $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 our $NO_PREFS_IN_TOPIC = 1;
 our $core;

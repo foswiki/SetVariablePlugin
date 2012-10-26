@@ -110,10 +110,9 @@ The =format= string may contain the standard escape parameters
 |  Plugin Author: | Foswiki:Main.MichaelDaum |
 |  Copyright: | &copy; 2007-2012 Michael Daum http://michaeldaumconsulting.com |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
-|  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | &nbsp; |
-|  26 Oct 2012: | view template without %<nop>TEXT% gets processed during save, ignores topic text |
+|  26 Oct 2012: | view template without %<nop>TEXT% gets processed during save, ignores topic text (Jan Kr&uuml;ger) |
 |  01 Oct 2012: | fixed reading a variable from a web scope, then fallback to global scope |
 |  10 Apr 2012: | fixing scope="web"; fixing reading the view template yet again |
 |  27 Feb 2012: | added scope="global"; fixed reading view templates when there is none |
