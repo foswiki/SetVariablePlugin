@@ -113,6 +113,7 @@ The =format= string may contain the standard escape parameters
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | &nbsp; |
+|  26 Oct 2012: | view template without %<nop>TEXT% gets processed during save, ignores topic text |
 |  01 Oct 2012: | fixed reading a variable from a web scope, then fallback to global scope |
 |  10 Apr 2012: | fixing scope="web"; fixing reading the view template yet again |
 |  27 Feb 2012: | added scope="global"; fixed reading view templates when there is none |
