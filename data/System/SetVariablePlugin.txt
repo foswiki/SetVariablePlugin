@@ -112,6 +112,7 @@ The =format= string may contain the standard escape parameters
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
 |  Version: | %$VERSION% |
 |  Change History: | &nbsp; |
+|  05 Nov 2012: | Module version string is incompatible with Foswiki extension installers before v1.1.6 |
 |  26 Oct 2012: | view template without %<nop>TEXT% gets processed during save, ignores topic text (Jan Kr&uuml;ger) |
 |  01 Oct 2012: | fixed reading a variable from a web scope, then fallback to global scope |
 |  10 Apr 2012: | fixing scope="web"; fixing reading the view template yet again |
