@@ -21,7 +21,14 @@ use warnings;
 use Foswiki::Func ();
 use Foswiki::Plugins ();
 
-our $VERSION = '2.31';
+our $VERSION;
+# Simple decimal version, use parse method, no leading "v"
+if ( substr( $Foswiki::VERSION, 0, 1 ) eq "v" ) {
+    use version; $VERSION = version->parse("2.31");
+}
+else {
+    $VERSION = "2.31";
+}
 our $RELEASE = "2.31";
 
 our $SHORTDESCRIPTION = 'Flexible handling of topic variables';
