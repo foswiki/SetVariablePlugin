@@ -271,6 +271,17 @@ sub handleDebugRules {
 }
 
 ###############################################################################
+sub readTemplate {
+  my ($this, $template) = @_;
+
+  unless (defined $this->{_template}{$template}) {
+    $this->{_template}{$template} = Foswiki::Func::readTemplate($template);
+  }
+
+  return $this->{_template}{$template};
+}
+
+###############################################################################
 sub handleBeforeSave {
   my ($this, $text, $topic, $web, $meta) = @_;
 
@@ -281,12 +292,14 @@ sub handleBeforeSave {
   # get the rules NOW
   my $viewTemplate = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE');
   my $tmpl;
-  $tmpl = Foswiki::Func::readTemplate($viewTemplate) if $viewTemplate;
-  $tmpl = Foswiki::Func::readTemplate('view') unless $tmpl;
+
+  $tmpl = $this->readTemplate($viewTemplate) if $viewTemplate;
+  $tmpl = $this->readTemplate('view') unless $tmpl;
 
   if ($tmpl && $tmpl =~ /\%TEXT%/) {
     $tmpl =~ s/\%TEXT%/$text/g;
   }
+
   # Item12196: expand only view template if $text isn't included, similar to
   # how Foswiki::UI::View renders pages
   $text = $tmpl;
