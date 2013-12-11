@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2006-2012 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2006-2013 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,15 +21,8 @@ use warnings;
 use Foswiki::Func ();
 use Foswiki::Plugins ();
 
-our $VERSION;
-# Simple decimal version, use parse method, no leading "v"
-if ( substr( $Foswiki::VERSION, 0, 1 ) eq "v" ) {
-    use version; $VERSION = version->parse("2.32");
-}
-else {
-    $VERSION = "2.32";
-}
-our $RELEASE = "2.32";
+our $VERSION = "2.33";
+our $RELEASE = "2.33";
 
 our $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 our $NO_PREFS_IN_TOPIC = 1;
@@ -75,7 +68,6 @@ sub getCore {
 
 ###############################################################################
 sub beforeSaveHandler { 
-  return if $Foswiki::Plugins::VERSION >= 2.3;
   return getCore()->handleBeforeSave(@_); 
 }
 

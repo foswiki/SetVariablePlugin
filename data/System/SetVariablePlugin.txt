@@ -108,10 +108,11 @@ The =format= string may contain the standard escape parameters
 
 ---++ Plugin Info
 |  Plugin Author: | Foswiki:Main.MichaelDaum |
-|  Copyright: | &copy; 2007-2012 Michael Daum http://michaeldaumconsulting.com |
+|  Copyright: | &copy; 2007-2013 Michael Daum http://michaeldaumconsulting.com |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
 |  Version: | %$VERSION% |
 |  Change History: | &nbsp; |
+|  12 Dec 2013: | still perform an beforeSaveHandler even on newer foswikies |
 |  17 Dec 2012: | work around performance problem in common Foswiki engines reading templates repeatedly |
 |  05 Nov 2012: | Module version string is incompatible with Foswiki extension installers before v1.1.6 |
 |  26 Oct 2012: | view template without %<nop>TEXT% gets processed during save, ignores topic text (Jan Kr&uuml;ger) |
