@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2006-2013 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2006-2016 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,9 +20,19 @@ use warnings;
 
 use Foswiki::Func ();
 use Foswiki::Plugins ();
+use Foswiki::Request ();
 
-our $VERSION = "2.33";
-our $RELEASE = "2.33";
+BEGIN {
+  # Backwards compatibility for Foswiki 1.1.x
+  unless (Foswiki::Request->can('multi_param')) {
+    no warnings 'redefine';
+    *Foswiki::Request::multi_param = \&Foswiki::Request::param;
+    use warnings 'redefine';
+  }
+}
+
+our $VERSION = "2.34";
+our $RELEASE = "09 Sep 2016";
 
 our $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 our $NO_PREFS_IN_TOPIC = 1;

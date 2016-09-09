@@ -1,9 +1,6 @@
----+!! <nop>%TOPIC%
-%SHORTDESCRIPTION%
-<!--
-One line description, required for extensions repository catalog.
-   * Set SHORTDESCRIPTION = Flexible handling of topic variables
--->
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1262991297" format="1.1" reprev="1.2" version="1"}%
+---+!! %TOPIC%
+%FORMFIELD{"Description"}%
 
 %TOC%
 
@@ -106,12 +103,11 @@ The =format= string may contain the standard escape parameters
 ---++ Installation Instructions
 %$INSTALL_INSTRUCTIONS%
 
----++ Plugin Info
-|  Plugin Author: | Foswiki:Main.MichaelDaum |
-|  Copyright: | &copy; 2007-2013 Michael Daum http://michaeldaumconsulting.com |
-|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
-|  Version: | %$VERSION% |
-|  Change History: | &nbsp; |
+---++ Dependencies
+%$DEPENDENCIES%
+
+---++ Change History
+|  09 Sep 2016: | add compatibility with different Foswiki engines |
 |  12 Dec 2013: | still perform an beforeSaveHandler even on newer foswikies |
 |  17 Dec 2012: | work around performance problem in common Foswiki engines reading templates repeatedly |
 |  05 Nov 2012: | Module version string is incompatible with Foswiki extension installers before v1.1.6 |
@@ -123,6 +119,14 @@ The =format= string may contain the standard escape parameters
 |  28 Sep 2011: | implement setting variables via view_templates |
 |  17 Nov 2009: | SETVAR has higher priority than urlparams; fixed use in persistent perl envs |
 |  23 Jun 2009: | initial release |
-|  Dependencies: | %$DEPENDENCIES% |
-|  Home: | Foswiki:Extensions/%TOPIC% |
-|  Support: | Foswiki:Support/%TOPIC% |
+
+%META:FORM{name="PackageForm"}%
+%META:FIELD{name="Author" title="Author" value="Foswiki:Main.MichaelDaum"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2007-2016 Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
+%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/%TOPIC%"}%
+%META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
+%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/%TOPIC%"}%
+%META:FIELD{name="Support" title="Support" value="Foswiki:Support/%TOPIC%"}%
+%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%

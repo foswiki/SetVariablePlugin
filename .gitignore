@@ -1,0 +1,11 @@
+*,v
+igp_*
+genpdf_*
+*.swp
+/SetVariablePlugin.md5
+/SetVariablePlugin.sha1
+/SetVariablePlugin.tgz
+/SetVariablePlugin.txt
+/SetVariablePlugin.zip
+/SetVariablePlugin_installer
+/SetVariablePlugin_installer.pl

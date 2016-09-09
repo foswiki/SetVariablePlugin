@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2013 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2016 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -16,10 +16,12 @@ package Foswiki::Plugins::SetVariablePlugin::Core;
 
 use strict;
 use warnings;
-use constant DEBUG => 0; # toggle me
+
+use Foswiki::Func ();
+
+use constant TRACE => 0; # toggle me
 use constant ACTION_UNSET => 0;
 use constant ACTION_SET => 1;
-use Foswiki::Func ();
 
 ###############################################################################
 # constructor
@@ -32,8 +34,8 @@ sub new {
 ###############################################################################
 # static
 sub writeDebug {
-  #Foswiki::Func::writeDebug("- SetVariablePlugin - ".$_[0]) if DEBUG;
-  print STDERR "- SetVariablePlugin - ".$_[0]."\n" if DEBUG;
+  #Foswiki::Func::writeDebug("- SetVariablePlugin - ".$_[0]) if TRACE;
+  print STDERR "- SetVariablePlugin - ".$_[0]."\n" if TRACE;
 }
 
 ###############################################################################
@@ -59,7 +61,7 @@ sub applyRules {
 
   $text ||= '';
 
-#  if (DEBUG) {
+#  if (TRACE) {
 #    require Data::Dumper;
 #    writeDebug(Data::Dumper->Dump([$this->{rules}]));
 #  }
@@ -319,15 +321,15 @@ sub handleBeforeSave {
     next unless $key =~ /^(Local|Set|Unset)\+(.*)$/;
     my $type = $1;
     my $name = $2;
-    my @values = $request->param($key);
+    my @values = $request->multi_param($key);
     next unless @values;
-    @values = grep {!/^$/} @values if @values > 1;
+    @values = grep {!/^$/} grep {defined($_)} @values if @values > 1;
     my $value = join(", ", @values);
     writeDebug("key=$key, value=$value");
 
     # convert a set to an unset if that's already default
     if ($type =~ /Local|Set/) {
-      my @defaultValues = $request->param("Default+$name");
+      my @defaultValues = $request->multi_param("Default+$name");
       if (@defaultValues) {
         @defaultValues = grep {!/^$/} @defaultValues if @defaultValues > 1;
         my $defaultValue = join(', ', @defaultValues);
