@@ -1,3 +1,4 @@
+!noci
 data/System/SetVariablePlugin.txt 0644
 lib/Foswiki/Plugins/SetVariablePlugin/Core.pm 0644
 lib/Foswiki/Plugins/SetVariablePlugin.pm 0644

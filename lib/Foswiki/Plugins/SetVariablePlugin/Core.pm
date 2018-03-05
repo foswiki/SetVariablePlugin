@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2016 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2018 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -76,8 +76,8 @@ sub applyRules {
       next unless defined $record->{regex}; # illegal rule
       my $found = 0;
       foreach my $field (@fields) {
-        my $name = $field->{name} || '';
-        my $value = $field->{value} || '';
+        my $name = $field->{name} // '';
+        my $value = $field->{value} // '';
         if ($name eq $record->{field} && $value =~ /^($record->{regex})$/) {
           $found = 1;
           last;
@@ -118,7 +118,7 @@ sub handleSetVar {
 
   $this->addRule(ACTION_SET,
     var => ($params->{_DEFAULT} || $params->{var}),
-    value => ($params->{value} || ''),
+    value => ($params->{value} // ''),
     type => ($params->{type} || 'Local'),
     field => $params->{field},
     regex => ($params->{match} || $params->{matches} || $params->{regex} || '.*'),
@@ -136,12 +136,12 @@ sub handleGetVar {
   my $theWeb = $params->{web} || $web;
   my $theVar = $params->{_DEFAULT};
   my $theFormat = $params->{format};
-  my $theHeader = $params->{header} || '';
-  my $theFooter = $params->{footer} || '';
+  my $theHeader = $params->{header} // '';
+  my $theFooter = $params->{footer} // '';
   my $theSep = $params->{separator};
   my $theType = $params->{type} || 'PREFERENCE';
   my $theSort = $params->{sort} || 'off';
-  my $theDefault = $params->{default} || '';
+  my $theDefault = $params->{default} // '';
   my $theScope = $params->{scope} || 'topic'; # global, web, user, session, topic
   
   $theFormat = '$value' unless defined $theFormat;
@@ -367,13 +367,13 @@ sub handleBeforeSave {
 sub expandVariables {
   my ($theFormat, %params) = @_;
 
-  return '' unless $theFormat;
+  return '' unless defined $theFormat;
 
   my $mixedAlphaNum = Foswiki::Func::getRegularExpression('mixedAlphaNum');
   
   foreach my $key (keys %params) {
     next if $key =~ /^_/;
-    my $val = $params{$key} || '';
+    my $val = $params{$key} // '';
     $theFormat =~ s/\$$key\b/$val/g;
   }
   $theFormat =~ s/\$percnt/\%/go;
