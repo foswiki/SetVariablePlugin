@@ -292,9 +292,14 @@ sub handleBeforeSave {
   writeDebug("handleBeforeSave($web.$topic)");
 
   # get the rules NOW
-  my $viewTemplate = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE');
-  my $tmpl;
+  my $request = Foswiki::Func::getRequestObject();
 
+  my $viewTemplate = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE');
+  $viewTemplate = $request->param("template") unless $viewTemplate;
+
+  writeDebug("viewTemplate=".($viewTemplate//''));
+
+  my $tmpl;
   $tmpl = $this->readTemplate($viewTemplate) if $viewTemplate;
   $tmpl = $this->readTemplate('view') unless $tmpl;
 
@@ -315,44 +320,45 @@ sub handleBeforeSave {
   $text = Foswiki::Func::expandCommonVariables($text, $topic, $web);
 
   # create rules from Set+VARNAME, Local+VARNAME, Unset+VARNAME and Default+VARNAME urlparams
-  my $request = Foswiki::Func::getCgiQuery();
-  foreach my $key ($request->param()) {
+  if ($Foswiki::Plugins::VERSION < 2.2) {
+    foreach my $key ($request->param()) {
 
-    next unless $key =~ /^(Local|Set|Unset)\+(.*)$/;
-    my $type = $1;
-    my $name = $2;
-    my @values = $request->multi_param($key);
-    next unless @values;
-    @values = grep {!/^$/} grep {defined($_)} @values if @values > 1;
-    my $value = join(", ", @values);
-    writeDebug("key=$key, value=$value");
+      next unless $key =~ /^(Local|Set|Unset)\+(.*)$/;
+      my $type = $1;
+      my $name = $2;
+      my @values = $request->multi_param($key);
+      next unless @values;
+      @values = grep {!/^$/} grep {defined($_)} @values if @values > 1;
+      my $value = join(", ", @values);
+      writeDebug("key=$key, value=$value");
 
-    # convert a set to an unset if that's already default
-    if ($type =~ /Local|Set/) {
-      my @defaultValues = $request->multi_param("Default+$name");
-      if (@defaultValues) {
-        @defaultValues = grep {!/^$/} @defaultValues if @defaultValues > 1;
-        my $defaultValue = join(', ', @defaultValues);
-        if ($defaultValue eq $value) {
-          $type = 'Unset';
-          writeDebug("found set to default/undef ... unsetting ".$name);
+      # convert a set to an unset if that's already default
+      if ($type =~ /Local|Set/) {
+        my @defaultValues = $request->multi_param("Default+$name");
+        if (@defaultValues) {
+          @defaultValues = grep {!/^$/} @defaultValues if @defaultValues > 1;
+          my $defaultValue = join(', ', @defaultValues);
+          if ($defaultValue eq $value) {
+            $type = 'Unset';
+            writeDebug("found set to default/undef ... unsetting ".$name);
+          }
         }
       }
-    }
 
-    # create a rule
-    if ($type eq 'Unset') {
-      $this->addRule(ACTION_UNSET,
-        var => $name,
-        prio => 2,
-      );
-    } else {
-      $this->addRule(ACTION_SET,
-        var => $name,
-        value => $value,
-        type => $type,
-        prio => 2,
-      );
+      # create a rule
+      if ($type eq 'Unset') {
+        $this->addRule(ACTION_UNSET,
+          var => $name,
+          prio => 2,
+        );
+      } else {
+        $this->addRule(ACTION_SET,
+          var => $name,
+          value => $value,
+          type => $type,
+          prio => 2,
+        );
+      }
     }
   }
 

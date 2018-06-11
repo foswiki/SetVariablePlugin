@@ -31,8 +31,8 @@ BEGIN {
   }
 }
 
-our $VERSION = "2.35";
-our $RELEASE = "05 Mar 2018";
+our $VERSION = "3.00";
+our $RELEASE = "11 Jun 2018";
 
 our $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 our $NO_PREFS_IN_TOPIC = 1;
