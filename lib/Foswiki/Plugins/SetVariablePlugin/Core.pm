@@ -313,7 +313,7 @@ sub handleBeforeSave {
 
   # Disable most macros in the text... we only care about those that probably bring in a [GET,SET,UNSET,DEL]VAR
   # TODO: can we perform all INCLUDEs and DBCALLs only before disabling everything else?
-  $text =~ s/%((?!(GETVAR|SETVAR|DELVAR|UNSETVAR))$Foswiki::regex{tagNameRegex}({.*?})?)%/%<nop>$1%/gms;
+  $text =~ s/%((?!(GETVAR|SETVAR|DELVAR|UNSETVAR))$Foswiki::regex{tagNameRegex}(\{.*?\})?)%/%<nop>$1%/gms;
 
   #writeDebug("text=$text\n");
 

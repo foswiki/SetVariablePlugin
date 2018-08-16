@@ -107,6 +107,8 @@ The =format= string may contain the standard escape parameters
 %$DEPENDENCIES%
 
 ---++ Change History
+%TABLE{columnwidths="7em" tablewidth="100%"}%
+|  16 Aug 2018: | fixed some more perl errors |
 |  11 Jun 2018: | disable processsing SET url parameters on Foswiki engines that support this feature on their own |
 |  05 Mar 2018: | fixed some perl rookie errors |
 |  09 Sep 2016: | add compatibility with different Foswiki engines |
