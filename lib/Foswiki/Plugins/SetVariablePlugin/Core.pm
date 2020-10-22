@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2018 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2020 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -32,6 +32,13 @@ sub new {
 }
 
 ###############################################################################
+sub DESTROY {
+  my $this = shift;
+
+  undef $this->{_template};
+}
+
+###############################################################################
 # static
 sub writeDebug {
   #Foswiki::Func::writeDebug("- SetVariablePlugin - ".$_[0]) if TRACE;
@@ -61,10 +68,10 @@ sub applyRules {
 
   $text ||= '';
 
-#  if (TRACE) {
-#    require Data::Dumper;
-#    writeDebug(Data::Dumper->Dump([$this->{rules}]));
-#  }
+  if (TRACE) {
+    require Data::Dumper;
+    writeDebug(Data::Dumper->Dump([$this->{rules}]));
+  }
 
   my @fields = $meta->find('FIELD');
 
@@ -72,18 +79,18 @@ sub applyRules {
   foreach my $record (sort {$b->{prio} <=> $a->{prio}} @{$this->{rules}}) {
 
     # check conditions
+    my $found;
     if ($record->{field}) {
       next unless defined $record->{regex}; # illegal rule
-      my $found = 0;
       foreach my $field (@fields) {
         my $name = $field->{name} // '';
         my $value = $field->{value} // '';
         if ($name eq $record->{field} && $value =~ /^($record->{regex})$/) {
-          $found = 1;
+          $found = $field;
           last;
         }
       }
-      next unless $found;
+      next unless defined $found;
     } else {
       if ($record->{regex}) { # check against topic text
         next unless $text =~ /$record->{regex}/;
@@ -91,19 +98,22 @@ sub applyRules {
     }
 
     # get settings 
-    my $var = $record->{var};
+    my @vars = split(/\s*,\s*/, $record->{var});
     my $type = $record->{type} || 'Local';
-    my $value = expandVariables($record->{value});
-    if (defined $value) {
-      $value = Foswiki::Func::expandCommonVariables($value, $topic, $web);
-    }
+    $found //= {};
+    my $value = expandVariables($record->{format} // $record->{value}, %$found);
+    $value = Foswiki::Func::expandCommonVariables($value, $topic, $web) if defined $value && $value =~ /%/;
 
-    if ($record->{action} eq ACTION_SET && defined($value)) {
-      writeDebug("... setting preference $var to $value, type=$type, prio=$record->{prio}");
-      $meta->putKeyed('PREFERENCE', {name=>$var, title => $var, value => $value, type => $type});
+    if ($record->{action} eq ACTION_SET && defined($value) && $value ne 'undef') {
+      foreach my $var (@vars) {
+        writeDebug("... setting preference $var to $value, type=$type, prio=$record->{prio}");
+        $meta->putKeyed('PREFERENCE', {name=>$var, title => $var, value => $value, type => $type});
+      }
     } else { # unset
-      writeDebug("... unsetting preference $var, prio=$record->{prio}");
-      $meta->remove('PREFERENCE', $record->{var});
+      foreach my $var (@vars) {
+        writeDebug("... unsetting preference $var, prio=$record->{prio}");
+        $meta->remove('PREFERENCE', $var);
+      }
     }
   }
 
@@ -114,7 +124,7 @@ sub applyRules {
 sub handleSetVar {
   my ($this, $session, $params, $topic, $web) = @_;
 
-  writeDebug("handleSetVar(".$params->stringify().")");
+  #writeDebug("handleSetVar(".$params->stringify().")");
 
   $this->addRule(ACTION_SET,
     var => ($params->{_DEFAULT} || $params->{var}),
@@ -260,11 +270,14 @@ sub handleDebugRules {
   
   my $result = '| *Action* | *Type* | *Variable* | *Value* | *Property* | *Match* |'."\n";
   foreach my $record (@{$this->{rules}}) {
+    my $format = $record->{format} // $record->{value} // '&nbsp';
+    my $field = $record->{field} // 'text';
+
     $result .= '|'.($record->{action}?'set':'unset');
     $result .= '|'.$record->{type},
     $result .= '|'.$record->{var};
-    $result .= '|'.($record->{value}?$record->{value}:'&nbsp;');
-    $result .= '|'.($record->{field}?$record->{field}:'text');
+    $result .= '|'.$format;
+    $result .= '|'.$field;
     $result .= '|'.$record->{regex};
     $result .= "|\n";
   }
@@ -297,7 +310,7 @@ sub handleBeforeSave {
   my $viewTemplate = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE');
   $viewTemplate = $request->param("template") unless $viewTemplate;
 
-  writeDebug("viewTemplate=".($viewTemplate//''));
+  #writeDebug("viewTemplate=".($viewTemplate//''));
 
   my $tmpl;
   $tmpl = $this->readTemplate($viewTemplate) if $viewTemplate;
@@ -317,10 +330,10 @@ sub handleBeforeSave {
 
   #writeDebug("text=$text\n");
 
-  $text = Foswiki::Func::expandCommonVariables($text, $topic, $web);
+  $text = Foswiki::Func::expandCommonVariables($text, $topic, $web) if $text =~ /%/;
 
   # create rules from Set+VARNAME, Local+VARNAME, Unset+VARNAME and Default+VARNAME urlparams
-  if ($Foswiki::Plugins::VERSION < 2.2) {
+  #if ($Foswiki::Plugins::VERSION < 2.2) {
     foreach my $key ($request->param()) {
 
       next unless $key =~ /^(Local|Set|Unset)\+(.*)$/;
@@ -360,7 +373,7 @@ sub handleBeforeSave {
         );
       }
     }
-  }
+  #}
 
   # execute rules in the given order
   $this->applyRules($web, $topic, $meta, $text);
@@ -382,10 +395,10 @@ sub expandVariables {
     my $val = $params{$key} // '';
     $theFormat =~ s/\$$key\b/$val/g;
   }
-  $theFormat =~ s/\$percnt/\%/go;
-  $theFormat =~ s/\$dollar/\$/go;
-  $theFormat =~ s/\$nop//go;
-  $theFormat =~ s/\$n([^$mixedAlphaNum]|$)/\n$1/go;
+  $theFormat =~ s/\$perce?nt/\%/g;
+  $theFormat =~ s/\$dollar/\$/g;
+  $theFormat =~ s/\$nop//g;
+  $theFormat =~ s/\$n([^$mixedAlphaNum]|$)/\n$1/g;
 
   return $theFormat;
 }

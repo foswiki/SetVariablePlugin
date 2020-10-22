@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# Copyright (C) 2006-2018 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2006-2020 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -31,8 +31,8 @@ BEGIN {
   }
 }
 
-our $VERSION = "3.01";
-our $RELEASE = "16 Aug 2018";
+our $VERSION = "4.00";
+our $RELEASE = "22 Oct 2020";
 
 our $SHORTDESCRIPTION = 'Flexible handling of topic variables';
 our $NO_PREFS_IN_TOPIC = 1;
@@ -61,17 +61,21 @@ sub initPlugin {
     return '<!-- -->' ;
   });
 
-  $core = undef;
-
   return 1;
 }
 
 ###############################################################################
-sub getCore {
-  return $core if $core;
+sub finishPlugin {
+  undef $core;
+}
 
-  require Foswiki::Plugins::SetVariablePlugin::Core;
-  $core = new Foswiki::Plugins::SetVariablePlugin::Core;
+###############################################################################
+sub getCore {
+
+  unless (defined $core) {
+    require Foswiki::Plugins::SetVariablePlugin::Core;
+    $core = new Foswiki::Plugins::SetVariablePlugin::Core;
+  }
 
   return $core;
 }

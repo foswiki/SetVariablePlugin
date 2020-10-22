@@ -35,10 +35,10 @@ wins and decides wether a variable is set or deleted. This allows to create more
 ---++ Syntax Rules
 ---+++ SETVAR
 <verbatim class="tml">%SETVAR{
-  "<key>" 
-  value="<value>" 
-  field="<fieldname>" 
-  regex="<pattern>"
+  "&lt;key>"
+  format="&lt;value>"
+  field="&lt;fieldname>"
+  regex="&lt;pattern>"
 }%</verbatim>
 
 This sets topic variable =key= to value =value= if the formfield =fieldname= of the current topic
@@ -46,11 +46,22 @@ matches =pattern=.
 This allows to set topic variables based on the value of a formfield value. For example, that's useful
 to create access control settings automatically.
 
+The =format= string may contain the standard escape parameters
+   * =$percnt=,
+   * =$dollar=,
+   * =$nop= and
+   * =$n= as well as
+   * =$value= - the value of the current variable
+   * =$name= - the name of the current variable
+   * =$title= - the title and the
+   * =$type= - which is =Set=, =Local=, =Web=, =Session= or =Global= depending on the type
+               and scope of the variable
+
 ---+++ UNSETVAR
 <verbatim class="tml">%UNSETVAR{
-  "<key>" 
-  field="<fieldname>" 
-  regex="<pattern>"
+  "&lt;key>"
+  field="&lt;fieldname>"
+  regex="&lt;pattern>"
 }%</verbatim>
 
 This unsets topic variable =key= when formfield formfield =fieldname= of the current topic
@@ -58,24 +69,24 @@ matches =pattern=
 
 ---+++ GETVAR
 <verbatim class="tml">%GETVAR{
-  "<key|pattern>" 
-  web="<web>" 
-  topic="<topic>" 
-  format="<format>" 
-  header="<header>"
-  footer="<footer>"
-  separator="<separator>"
+  "&lt;key|pattern>"
+  web="&lt;web>"
+  topic="&lt;topic>"
+  format="&lt;format>"
+  header="&lt;header>"
+  footer="&lt;footer>"
+  separator="&lt;separator>"
   type="PREFERENCE|FIELD|TOPICINFO|..."
   sort="on|off"
-  default="<default>"
+  default="&lt;default>"
   scope="topic|web|user|session|global"
 }%</verbatim>
 
 This displays a variable =key= as stored in topic =web.topic= and formats it using
 the given =format=. It's type can be any of the known Foswiki meta data specifies like
-=PREFERENCE=, =FIELD=, =TOPICINFO= etc. When no definition of =key= was found the 
+=PREFERENCE=, =FIELD=, =TOPICINFO= etc. When no definition of =key= was found the
 =default= value is returned. Instead of extracting a variable from =web.topic=
-it can also be extracted from a specific scope. 
+it can also be extracted from a specific scope.
 
 Normally all scopes are layered above each other and only the value defined in
 the scope with highest precedence is returned.  So when ever a variable is set
@@ -83,15 +94,15 @@ in a topic, it will potentially override its definition on web level or user
 level. You may use the =scope= parameter to bypass this logic and extract a
 specific value from the given scope specifier.
 
-Multiple variables can be returned by one call if you use a =pattern= instead of 
+Multiple variables can be returned by one call if you use a =pattern= instead of
 a =key= holding a regular expression. GETVAR will return all variable values of
-the given =type= where the =pattern= matches on the variable name. The list of 
+the given =type= where the =pattern= matches on the variable name. The list of
 variables will be displayed using =format= preceded by =header= and appended by =footer=.
 The =header= and =footer= will be omitted when no matching variable was found.
 
-The =format= string may contain the standard escape parameters 
-   * =$percnt=, 
-   * =$dollar=, 
+The =format= string may contain the standard escape parameters
+   * =$percnt=,
+   * =$dollar=,
    * =$nop= and
    * =$n= as well as
    * =$value= - the value of the current variable
@@ -108,6 +119,7 @@ The =format= string may contain the standard escape parameters
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  22 Oct 2020: | allow to unset a variable using the special value _undef_; deprecated =value= in %SETVAR in favour of =format=; allow same escape parameters in format of %SETVAR as in %GETVAR |
 |  16 Aug 2018: | fixed some more perl errors |
 |  11 Jun 2018: | disable processsing SET url parameters on Foswiki engines that support this feature on their own |
 |  05 Mar 2018: | fixed some perl rookie errors |
@@ -126,7 +138,7 @@ The =format= string may contain the standard escape parameters
 
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Foswiki:Main.MichaelDaum"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2007-2018 Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2007-2020 Michael Daum"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/%TOPIC%"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
