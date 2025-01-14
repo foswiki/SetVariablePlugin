@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1528725143" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1736877572" format="1.1" version="1"}%
 ---+!! %TOPIC%
 %FORMFIELD{"Description"}%
 
@@ -35,10 +35,10 @@ wins and decides wether a variable is set or deleted. This allows to create more
 ---++ Syntax Rules
 ---+++ SETVAR
 <verbatim class="tml">%SETVAR{
-  "&lt;key>"
-  format="&lt;value>"
-  field="&lt;fieldname>"
-  regex="&lt;pattern>"
+  "<key>"
+  format="<value>"
+  field="<fieldname>"
+  regex="<pattern>"
 }%</verbatim>
 
 This sets topic variable =key= to value =value= if the formfield =fieldname= of the current topic
@@ -59,9 +59,9 @@ The =format= string may contain the standard escape parameters
 
 ---+++ UNSETVAR
 <verbatim class="tml">%UNSETVAR{
-  "&lt;key>"
-  field="&lt;fieldname>"
-  regex="&lt;pattern>"
+  "<key>"
+  field="<fieldname>"
+  regex="<pattern>"
 }%</verbatim>
 
 This unsets topic variable =key= when formfield formfield =fieldname= of the current topic
@@ -69,16 +69,16 @@ matches =pattern=
 
 ---+++ GETVAR
 <verbatim class="tml">%GETVAR{
-  "&lt;key|pattern>"
-  web="&lt;web>"
-  topic="&lt;topic>"
-  format="&lt;format>"
-  header="&lt;header>"
-  footer="&lt;footer>"
-  separator="&lt;separator>"
+  "<key|pattern>"
+  web="<web>"
+  topic="<topic>"
+  format="<format>"
+  header="<header>"
+  footer="<footer>"
+  separator="<separator>"
   type="PREFERENCE|FIELD|TOPICINFO|..."
   sort="on|off"
-  default="&lt;default>"
+  default="<default>"
   scope="topic|web|user|session|global"
 }%</verbatim>
 
@@ -119,6 +119,7 @@ The =format= string may contain the standard escape parameters
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  14 Jan 2025: | fix perl roockie initializing set rules |
 |  22 Oct 2020: | allow to unset a variable using the special value _undef_; deprecated =value= in %SETVAR in favour of =format=; allow same escape parameters in format of %SETVAR as in %GETVAR |
 |  16 Aug 2018: | fixed some more perl errors |
 |  11 Jun 2018: | disable processsing SET url parameters on Foswiki engines that support this feature on their own |
@@ -138,11 +139,11 @@ The =format= string may contain the standard escape parameters
 
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Foswiki:Main.MichaelDaum"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2007-2020 Michael Daum"}%
+%META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
+%META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
-%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/%TOPIC%"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/%25TOPIC%25"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2007-2025 Michael Daum"}%
 %META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
-%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
-%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/%TOPIC%"}%
-%META:FIELD{name="Support" title="Support" value="Foswiki:Support/%TOPIC%"}%
-%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%
+%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/%25TOPIC%25"}%
+%META:FIELD{name="Support" title="Support" value="Foswiki:Support/%25TOPIC%25"}%

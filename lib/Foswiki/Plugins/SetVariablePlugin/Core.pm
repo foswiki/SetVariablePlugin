@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2020 Michael Daum http://michaeldaumconsulting.com
+# Copyright (C) 2007-2025 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -11,7 +11,6 @@
 # GNU General Public License for more details, published at 
 # http://www.gnu.org/copyleft/gpl.html
 #
-###############################################################################
 package Foswiki::Plugins::SetVariablePlugin::Core;
 
 use strict;
@@ -23,7 +22,6 @@ use constant TRACE => 0; # toggle me
 use constant ACTION_UNSET => 0;
 use constant ACTION_SET => 1;
 
-###############################################################################
 # constructor
 sub new {
   my $class = shift;
@@ -31,21 +29,12 @@ sub new {
   return bless({}, $class);
 }
 
-###############################################################################
-sub DESTROY {
+sub finish {
   my $this = shift;
 
   undef $this->{_template};
 }
 
-###############################################################################
-# static
-sub writeDebug {
-  #Foswiki::Func::writeDebug("- SetVariablePlugin - ".$_[0]) if TRACE;
-  print STDERR "- SetVariablePlugin - ".$_[0]."\n" if TRACE;
-}
-
-###############################################################################
 sub addRule {
   my $this = shift;
   my $action = shift;
@@ -60,7 +49,6 @@ sub addRule {
   return $record;
 }
 
-###############################################################################
 sub applyRules {
   my ($this, $web, $topic, $meta, $text) = @_;
 
@@ -70,7 +58,7 @@ sub applyRules {
 
   if (TRACE) {
     require Data::Dumper;
-    writeDebug(Data::Dumper->Dump([$this->{rules}]));
+    _writeDebug(Data::Dumper->Dump([$this->{rules}]));
   }
 
   my @fields = $meta->find('FIELD');
@@ -101,17 +89,17 @@ sub applyRules {
     my @vars = split(/\s*,\s*/, $record->{var});
     my $type = $record->{type} || 'Local';
     $found //= {};
-    my $value = expandVariables($record->{format} // $record->{value}, %$found);
+    my $value = _expandVariables($record->{format} // $record->{value}, %$found);
     $value = Foswiki::Func::expandCommonVariables($value, $topic, $web) if defined $value && $value =~ /%/;
 
     if ($record->{action} eq ACTION_SET && defined($value) && $value ne 'undef') {
       foreach my $var (@vars) {
-        writeDebug("... setting preference $var to $value, type=$type, prio=$record->{prio}");
+        _writeDebug("... setting preference $var to $value, type=$type, prio=$record->{prio}");
         $meta->putKeyed('PREFERENCE', {name=>$var, title => $var, value => $value, type => $type});
       }
     } else { # unset
       foreach my $var (@vars) {
-        writeDebug("... unsetting preference $var, prio=$record->{prio}");
+        _writeDebug("... unsetting preference $var, prio=$record->{prio}");
         $meta->remove('PREFERENCE', $var);
       }
     }
@@ -120,25 +108,23 @@ sub applyRules {
   return $meta;
 }
 
-###############################################################################
 sub handleSetVar {
   my ($this, $session, $params, $topic, $web) = @_;
 
-  #writeDebug("handleSetVar(".$params->stringify().")");
+  #_writeDebug("handleSetVar(".$params->stringify().")");
 
   $this->addRule(ACTION_SET,
     var => ($params->{_DEFAULT} || $params->{var}),
     value => ($params->{value} // ''),
     type => ($params->{type} || 'Local'),
     field => $params->{field},
-    regex => ($params->{match} || $params->{matches} || $params->{regex} || '.*'),
+    regex => ($params->{match} // $params->{matches} // $params->{regex} // '.*'),
     prio => 1,
   );
 
   return '';
 }
 
-###############################################################################
 sub handleGetVar {
   my ($this, $session, $params, $topic, $web) = @_;
 
@@ -163,7 +149,7 @@ sub handleGetVar {
   my @metas;
   my $wikiName = Foswiki::Func::getWikiName();
 
-  #writeDebug("handleGetVar - topic=$theWeb.$theTopic, wikiName=$wikiName, scope=$theScope, type=$theType, var=$theVar");
+  #_writeDebug("handleGetVar - topic=$theWeb.$theTopic, wikiName=$wikiName, scope=$theScope, type=$theType, var=$theVar");
 
   # get meta
   if ($theScope eq 'user') {
@@ -185,11 +171,11 @@ sub handleGetVar {
     my ($meta, $text) = Foswiki::Func::readTopic($theWeb, $theTopic);
     
     if (!Foswiki::Func::checkAccessPermission("VIEW", $wikiName, $text, $topic, $web, $meta)) {
-      writeDebug("no view access");
+      _writeDebug("no view access");
       return '';
     }
     @metas = $meta->find($theType);
-    #writeDebug("found ".scalar(@metas)." metas");
+    #_writeDebug("found ".scalar(@metas)." metas");
   } elsif ($theScope eq 'web') {
     my $value = Foswiki::Func::getPreferencesValue($theVar, $theWeb);
     $value = getGlobalVar($theVar) unless defined $value;
@@ -227,7 +213,7 @@ sub handleGetVar {
   # filter and format
   foreach my $meta (@metas) {
     if ($theVar && $meta->{name} =~ /$theVar/) {
-      push @result, expandVariables($theFormat, %$meta);
+      push @result, _expandVariables($theFormat, %$meta);
     }
   }
   return $theDefault unless @result;
@@ -235,7 +221,6 @@ sub handleGetVar {
   return $theHeader.join($theSep, @result).$theFooter;
 }
 
-###############################################################################
 sub getGlobalVar {
   my $theVar = shift;
 
@@ -246,27 +231,25 @@ sub getGlobalVar {
   return $value;
 }
 
-###############################################################################
 sub handleUnsetVar {
   my ($this, $session, $params, $topic, $web) = @_;
 
-  writeDebug("handleUnsetVar(".$params->stringify().")");
+  _writeDebug("handleUnsetVar(".$params->stringify().")");
 
   $this->addRule(ACTION_UNSET,
     var => ($params->{_DEFAULT} || $params->{var}),
     field => $params->{field},
-    regex => ($params->{match} || $params->{matches} || $params->{regex} || '.*'),
+    regex => ($params->{match} // $params->{matches} // $params->{regex} // '.*'),
     prio => 1,
   );
 
   return '';
 }
 
-###############################################################################
 sub handleDebugRules {
   my ($this, $session, $params, $topic, $web) = @_;
 
-  #writeDebug("handleDebugRules(".$params->stringify().")");
+  #_writeDebug("handleDebugRules(".$params->stringify().")");
   
   my $result = '| *Action* | *Type* | *Variable* | *Value* | *Property* | *Match* |'."\n";
   foreach my $record (@{$this->{rules}}) {
@@ -285,7 +268,6 @@ sub handleDebugRules {
   return $result;
 }
 
-###############################################################################
 sub readTemplate {
   my ($this, $template) = @_;
 
@@ -296,13 +278,12 @@ sub readTemplate {
   return $this->{_template}{$template};
 }
 
-###############################################################################
 sub handleBeforeSave {
   my ($this, $text, $topic, $web, $meta) = @_;
 
   return if $this->{_insideBeforeSaveHandler};
   $this->{_insideBeforeSaveHandler} = 1;
-  writeDebug("handleBeforeSave($web.$topic)");
+  _writeDebug("handleBeforeSave($web.$topic)");
 
   # get the rules NOW
   my $request = Foswiki::Func::getRequestObject();
@@ -310,7 +291,7 @@ sub handleBeforeSave {
   my $viewTemplate = Foswiki::Func::getPreferencesValue('VIEW_TEMPLATE');
   $viewTemplate = $request->param("template") unless $viewTemplate;
 
-  #writeDebug("viewTemplate=".($viewTemplate//''));
+  #_writeDebug("viewTemplate=".($viewTemplate//''));
 
   my $tmpl;
   $tmpl = $this->readTemplate($viewTemplate) if $viewTemplate;
@@ -328,7 +309,7 @@ sub handleBeforeSave {
   # TODO: can we perform all INCLUDEs and DBCALLs only before disabling everything else?
   $text =~ s/%((?!(GETVAR|SETVAR|DELVAR|UNSETVAR))$Foswiki::regex{tagNameRegex}(\{.*?\})?)%/%<nop>$1%/gms;
 
-  #writeDebug("text=$text\n");
+  #_writeDebug("text=$text\n");
 
   $text = Foswiki::Func::expandCommonVariables($text, $topic, $web) if $text =~ /%/;
 
@@ -343,7 +324,7 @@ sub handleBeforeSave {
       next unless @values;
       @values = grep {!/^$/} grep {defined($_)} @values if @values > 1;
       my $value = join(", ", @values);
-      writeDebug("key=$key, value=$value");
+      _writeDebug("key=$key, value=$value");
 
       # convert a set to an unset if that's already default
       if ($type =~ /Local|Set/) {
@@ -353,7 +334,7 @@ sub handleBeforeSave {
           my $defaultValue = join(', ', @defaultValues);
           if ($defaultValue eq $value) {
             $type = 'Unset';
-            writeDebug("found set to default/undef ... unsetting ".$name);
+            _writeDebug("found set to default/undef ... unsetting ".$name);
           }
         }
       }
@@ -381,9 +362,8 @@ sub handleBeforeSave {
   $this->{_insideBeforeSaveHandler} = 0;
 }
 
-###############################################################################
 # static
-sub expandVariables {
+sub _expandVariables {
   my ($theFormat, %params) = @_;
 
   return '' unless defined $theFormat;
@@ -402,5 +382,11 @@ sub expandVariables {
 
   return $theFormat;
 }
+
+sub _writeDebug {
+  #Foswiki::Func::writeDebug("- SetVariablePlugin - ".$_[0]) if TRACE;
+  print STDERR "- SetVariablePlugin - ".$_[0]."\n" if TRACE;
+}
+
 
 1;
